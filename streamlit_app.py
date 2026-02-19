@@ -77,8 +77,7 @@ if st.session_state.p == "menu":
         if st.button("ACCEDER KILLIP", key="btn_k", use_container_width=True):
             nav("kk")
 
- # --- SECCIÓN DE REGISTROS (HISTORIAL) ---
-    # Usamos st.write() fuera de columnas para que ocupe todo el ancho
+# --- 1. SECCIÓN DE REGISTROS (HISTORIAL) ---
     st.write("---")
     st.subheader("📋 Pacientes Evaluados")
     
@@ -91,26 +90,27 @@ if st.session_state.p == "menu":
                 if i['r']:
                     st.write(f"**Interpretación:** {i['r']}")
         
+        # Este botón debe estar alineado con el 'for' de arriba
         if st.button("🗑️ Borrar Historial", key="del_hist_final"):
             st.session_state.h = []
             st.rerun()
 
-    # --- AVISO LEGAL (AL FINAL DE TODO) ---
-    # Este bloque debe estar al mismo nivel de sangría que el "st.write" de arriba
+    # --- 2. AVISO LEGAL (DENTRO DEL MENÚ, AL FINAL) ---
     st.markdown("""
         <div style="margin-top: 50px; padding: 15px; background-color: #1a1a1a; border-radius: 10px; border-left: 5px solid #e63946;">
             <p style="color: #d1d5db; font-size: 0.8em; margin: 0; line-height: 1.4;">
                 <b style="color: #e63946;">⚠️ AVISO MÉDICO LEGAL:</b><br>
                 Esta aplicación es una herramienta de apoyo a la decisión clínica y no sustituye el juicio de un profesional médico. 
                 Los cálculos (HEART, GRACE, TIMI, Killip) se basan en protocolos estándar. La interpretación y uso de estos datos 
-                son responsabilidad exclusiva del usuario. En caso de emergencia, siga los protocolos de su institución.
+                son responsabilidad exclusiva del usuario.
             </p>
         </div>
     """, unsafe_allow_html=True)
 
-# --- REVISA QUE EL "ELIF" QUE SIGUE ESTÉ ALINEADO CON EL PRIMER "IF" ---
+# --- 3. SIGUIENTE PANTALLA (ESTE ELIF VA PEGADO A LA IZQUIERDA) ---
 elif st.session_state.p == "kk":
-    # ... resto del código ...
+    st.button("⬅️ Volver", on_click=lambda: nav("menu"))
+    # ... aquí sigue el resto de tu código de Killip ...
 
 # --- 4. PANTALLA: KILLIP VISUAL ---
 elif st.session_state.p == "kk":
