@@ -37,7 +37,7 @@ if st.session_state.p == "menu":
         if st.button("📏 Escalas TIMI"): nav("t_sel")
         if st.button("🧬 HEART Score"): nav("heart")
     with col2:
-        if st.button("📈 GRACE Score"): st.info("Próximamente")
+        if st.button("📈 GRACE Score"): nav("grace")
         if st.button("🫁 Killip & Kimball"): nav("kk")
     st.write("---")
     st.subheader("📋 Pacientes Evaluados")
@@ -111,3 +111,75 @@ elif st.session_state.p == "t_run":
         st.success(f"Puntaje Final: {st.session_state.pts}")
         if st.button("Guardar Resultado"):
             save(f"TIMI {st.session_state.tipo}", st.session_state.pts)
+elif st.session_state.p == "grace":
+    st.button("⬅️ Volver", on_click=lambda: nav("menu"))
+    st.header("GRACE Score 2.0")
+    st.caption("Predicción de mortalidad intrahospitalaria y a 6 meses.")
+
+    with st.form("grace_form"):
+        col1, col2 = st.columns(2)
+        with col1:
+            edad = st.number_input("Edad", 18, 100, 65)
+            fc = st.number_input("Frecuencia Cardíaca (lpm)", 30, 200, 80)
+            pas = st.number_input("Presión Sistólica (mmHg)", 50, 250, 120)
+        with col2:
+            creat = st.number_input("Creatinina (mg/dL)", 0.1, 10.0, 1.0)
+            kk = st.selectbox("Clase Killip", ["I", "II", "III", "IV"])
+        
+        st.write("---")
+        paro = st.checkbox("Paro cardíaco al ingreso")
+        st_seg = st.checkbox("Desviación del segmento ST")
+        enzimas = st.checkbox("Enzimas cardíacas elevadas")
+        
+        submit = st.form_submit_button("Calcular Riesgo GRACE")
+
+    if submit:
+        # Lógica de puntos simplificada basada en el nomograma GRACE
+        pts = 0
+        # Edad
+        if edad < 40: pts += 0
+        elif edad < 50: pts += 18
+        elif edad < 60: pts += 36
+        elif edad < 70: pts += 55
+        elif edad < 80: pts += 73
+        else: pts += 91
+        
+        # FC
+        if fc < 70: pts += 0
+        elif fc < 100: pts += 7
+        elif fc < 150: pts += 24
+        elif fc < 200: pts += 46
+        else: pts += 64
+
+        # PAS
+        if pas < 80: pts += 63
+        elif pas < 100: pts += 53
+        elif pas < 120: pts += 43
+        elif pas < 140: pts += 34
+        elif pas < 160: pts += 24
+        else: pts += 0
+
+        # Creatinina
+        if creat < 0.4: pts += 1
+        elif creat < 0.8: pts += 4
+        elif creat < 1.2: pts += 7
+        elif creat < 1.6: pts += 10
+        elif creat < 2.0: pts += 13
+        else: pts += 21
+
+        # Resto de variables
+        if paro: pts += 43
+        if st_seg: pts += 30
+        if enzimas: pts += 15
+        
+        dict_kk = {"I": 0, "II": 21, "III": 43, "IV": 64}
+        pts += dict_kk[kk]
+
+        # Interpretación
+        mortalidad = "Baja (<1%)" if pts <= 108 else "Intermedia (1-3%)" if pts <= 140 else "Alta (>3%)"
+        
+        st.success(f"Puntaje Total: {pts} puntos")
+        st.metric("Mortalidad Intrahospitalaria", mortalidad)
+        
+        if st.button("Guardar en Pacientes Evaluados"):
+            save("GRACE", pts, f"({mortalidad})")
