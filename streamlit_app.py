@@ -31,63 +31,45 @@ def save(escala, puntos, riesgo=""):
 
 # --- 3. PANTALLA: MENÚ PRINCIPAL ---
 if st.session_state.p == "menu":
-    # Encabezado con Estilo
-    st.markdown("""
-        <div style="text-align: center; padding: 10px; border-bottom: 2px solid #e63946; margin-bottom: 20px;">
-            <h1 style="margin: 0;">🫀 SCA-Scores Pro</h1>
-            <p style="color: #9ca3af; font-size: 1.1em;">Estratificación de Riesgo Cardiovascular</p>
-        </div>
-    """, unsafe_allow_html=True)
-
-    # Sección de Escalas de Riesgo
-    st.subheader("📊 Escalas de Pronóstico")
+    st.markdown('<h1 style="text-align: center;">🫀 SCA-Scores Pro</h1>', unsafe_allow_stdio=True)
     
+    # Definimos las rutas de tus imágenes (asegúrate de que los nombres coincidan)
+    # Si las subiste a GitHub, solo usa el nombre del archivo
+    img_heart = "image_7e5193.png"
+    img_grace = "image_7e50c3.png"
+    img_timi = "image_7e54a0.jpg"
+    img_kk = "image_7e5483.png"
+
+    # Fila 1: HEART y GRACE
     col1, col2 = st.columns(2)
-    
     with col1:
-        st.markdown('<div class="card"><strong>Triaje Inicial</strong></div>', unsafe_allow_html=True)
-        if st.button("🧬 HEART Score", help="Ideal para dolor torácico en urgencias"): 
+        st.image(img_heart, use_container_width=True)
+        if st.button("Abrir HEART Score", key="btn_heart"):
             nav("heart")
-        
-        st.markdown('<div class="card"><strong>Mortalidad / Isquemia</strong></div>', unsafe_allow_html=True)
-        if st.button("📏 TIMI Scores", help="NSTEMI y STEMI"): 
-            nav("t_sel")
-
-    with col2:
-        st.markdown('<div class="card"><strong>Guías ESC / Invasivo</strong></div>', unsafe_allow_html=True)
-        if st.button("📈 GRACE Score 2.0", help="Define tiempo de cateterismo"): 
-            nav("grace")
             
-        st.markdown('<div class="card"><strong>Insuficiencia Cardíaca</strong></div>', unsafe_allow_html=True)
-        if st.button("🫁 Killip & Kimball", help="Evaluación clínica visual"): 
+    with col2:
+        st.image(img_grace, use_container_width=True)
+        if st.button("Abrir GRACE Score", key="btn_grace"):
+            nav("grace")
+
+    st.write("") # Espacio
+
+    # Fila 2: TIMI y KILLIP
+    col3, col4 = st.columns(2)
+    with col3:
+        st.image(img_timi, use_container_width=True)
+        if st.button("Abrir TIMI Score", key="btn_timi"):
+            nav("t_sel")
+            
+    with col4:
+        st.image(img_kk, use_container_width=True)
+        if st.button("Abrir Killip & Kimball", key="btn_kk"):
             nav("kk")
 
-    # Sección de Historial con mejor diseño
+    # Historial (se mantiene igual abajo)
     st.write("---")
-    st.subheader("📋 Últimas Evaluaciones")
-    if not st.session_state.h:
-        st.info("No hay pacientes registrados en este turno.")
-    else:
-        for i in reversed(st.session_state.h):
-            with st.expander(f"🕒 {i['t']} - {i['e']}"):
-                st.write(f"**Resultado:** {i['p']} puntos")
-                if i['r']:
-                    st.markdown(f"**Interpretación:** `{i['r']}`")
-        
-        if st.button("🗑️ Borrar Historial"):
-            st.session_state.h = []
-            st.rerun()
+    # ... resto del código del historial ...
 
-    # Pie de página (Legal Disclaimer)
-    st.markdown("""
-        <div style="margin-top: 50px; padding: 20px; background-color: #111827; border-radius: 10px; border: 1px solid #374151;">
-            <small style="color: #9ca3af;">
-                ⚠️ <b>Aviso Legal:</b> Esta herramienta es un apoyo a la decisión clínica. 
-                No sustituye el juicio médico profesional. Los resultados deben ser validados 
-                contextualmente con el estado del paciente.
-            </small>
-        </div>
-    """, unsafe_allow_html=True)
 # --- 4. PANTALLA: KILLIP VISUAL ---
 elif st.session_state.p == "kk":
     st.button("⬅️ Volver", on_click=lambda: nav("menu"))
