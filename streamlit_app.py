@@ -48,14 +48,14 @@ if st.session_state.p == "menu":
     
     st.write("---")
 
-    # --- AVISO LEGAL EN EL MENÚ ---
+  # --- 2. AVISO LEGAL (AL FINAL DE TODO) ---
     st.markdown("""
-        <div style="margin-top: 50px; padding: 15px; background-color: #111827; border-radius: 10px; border: 1px solid #374151;">
-            <p style="color: #9ca3af; font-size: 0.85em; margin: 0;">
-                <b>⚠️ AVISO LEGAL:</b> Esta herramienta está diseñada exclusivamente como soporte para profesionales de la salud. 
-                Los resultados (HEART, GRACE, TIMI, Killip) son estimaciones probabilísticas basadas en literatura médica 
-                validada pero no deben utilizarse como única base para el diagnóstico o tratamiento. 
-                La responsabilidad final recae siempre en el médico tratante.
+        <div style="margin-top: 50px; padding: 20px; background-color: #1a1c24; border-radius: 10px; border: 1px solid #3b82f6;">
+            <p style="color: #ffffff; font-size: 0.85em; margin: 0; line-height: 1.5;">
+                <span style="color: #facc15;"><b>⚠️ AVISO LEGAL:</b></span> Esta herramienta está diseñada exclusivamente 
+                como soporte para profesionales de la salud. Los resultados (HEART, GRACE, TIMI, Killip) son estimaciones 
+                probabilísticas basadas en literatura médica validada pero no deben utilizarse como única base para el 
+                diagnóstico o tratamiento. La responsabilidad final recae siempre en el médico tratante.
             </p>
         </div>
     """, unsafe_allow_html=True)
