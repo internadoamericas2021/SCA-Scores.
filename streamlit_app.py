@@ -48,6 +48,17 @@ if st.session_state.p == "menu":
     
     st.write("---")
 
+    # --- AVISO LEGAL EN EL MENÚ ---
+    st.markdown("""
+        <div style="margin-top: 50px; padding: 15px; background-color: #111827; border-radius: 10px; border: 1px solid #374151;">
+            <p style="color: #9ca3af; font-size: 0.85em; margin: 0;">
+                <b>⚠️ AVISO LEGAL:</b> Esta herramienta está diseñada exclusivamente como soporte para profesionales de la salud. 
+                Los resultados (HEART, GRACE, TIMI, Killip) son estimaciones probabilísticas basadas en literatura médica 
+                validada pero no deben utilizarse como única base para el diagnóstico o tratamiento. 
+                La responsabilidad final recae siempre en el médico tratante.
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
     
     # Creamos la rejilla
     col1, col2 = st.columns(2)
@@ -81,6 +92,9 @@ if st.session_state.p == "menu":
     # --- SECCIÓN DE REGISTROS (HISTORIAL) ---
     st.write("---")
     st.subheader("📋 Pacientes Evaluados")
+
+    # Dentro del historial, debajo del título "Pacientes Evaluados"
+st.caption("Los datos se almacenan localmente en la sesión actual. No se guardan en servidores externos.")
     
     if not st.session_state.h:
         st.info("No hay registros en este turno.")
