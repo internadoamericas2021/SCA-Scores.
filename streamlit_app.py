@@ -174,69 +174,103 @@ elif st.session_state.p == "t_run":
         st.write(f"**Interpretación:** {interp}")
         st.button("💾 Guardar en Historial", on_click=save, args=(f"TIMI {st.session_state.tipo}", p, interp), key="save_t")
 
-# --- 7. PANTALLA: GRACE ---
+# --- 7. PANTALLA: GRACE (CORREGIDA CON INTERPRETACIÓN DINÁMICA) ---
 elif st.session_state.p == "grace":
-    st.button("⬅️ Volver", on_click=nav, args=("menu",))
+    st.button("⬅️ Volver", on_click=nav, args=("menu",), key="back_grace")
     st.header("GRACE Score 2.0")
-    with st.form("grace_form"):
-        col1, col2 = st.columns(2)
-        with col1:
-            ed = st.number_input("Edad", 18, 100, 65)
-            fc = st.number_input("FC (lpm)", 30, 200, 80)
-            ps = st.number_input("PAS (mmHg)", 50, 250, 120)
-        with col2:
-            cr = st.number_input("Creatinina (mg/dL)", 0.1, 10.0, 1.0)
-            kl = st.selectbox("Clase Killip", ["I", "II", "III", "IV"])
-        
-        paro = st.checkbox("Paro cardíaco al ingreso")
-        st_seg = st.checkbox("Desviación del segmento ST")
-        enzimas = st.checkbox("Enzimas elevadas")
-        submit = st.form_submit_button("Calcular Riesgo GRACE")
+    st.caption("Predicción de mortalidad intrahospitalaria y a 6 meses.")
 
-    if submit:
-        pts = 0
-        # Edad
-        if ed < 40: pts += 0
-        elif ed < 50: pts += 18
-        elif ed < 60: pts += 36
-        elif ed < 70: pts += 55
-        elif ed < 80: pts += 73
-        else: pts += 91
-        # FC
-        if fc < 70: pts += 0
-        elif fc < 100: pts += 7
-        elif fc < 150: pts += 24
-        elif fc < 200: pts += 46
-        else: pts += 64
-        # PAS
-        if ps < 80: pts += 63
-        elif ps < 100: pts += 53
-        elif ps < 120: pts += 43
-        elif ps < 140: pts += 34
-        elif ps < 160: pts += 24
-        else: pts += 0
-        # Creatinina
-        if cr < 0.4: pts += 1
-        elif cr < 0.8: pts += 4
-        elif cr < 1.2: pts += 7
-        elif cr < 1.6: pts += 10
-        elif cr < 2.0: pts += 13
-        else: pts += 21
-        
-        if paro: pts += 43
-        if st_seg: pts += 30
-        if enzimas: pts += 15
-        pts += {"I": 0, "II": 21, "III": 43, "IV": 64}[kl]
+    # 1. ENTRADA DE DATOS
+    col1, col2 = st.columns(2)
+    with col1:
+        ed = st.number_input("Edad", 18, 100, 65)
+        fc = st.number_input("FC (lpm)", 30, 200, 80)
+        ps = st.number_input("PAS (mmHg)", 50, 250, 120)
+    with col2:
+        cr = st.number_input("Creatinina (mg/dL)", 0.1, 10.0, 1.0)
+        kl = st.selectbox("Clase Killip", ["I", "II", "III", "IV"])
+    
+    c3, c4, c5 = st.columns(3)
+    paro = c3.checkbox("Paro al ingreso")
+    st_seg = c4.checkbox("Desviación ST")
+    enzimas = c5.checkbox("Enzimas (+)")
 
-        riesgo_cat = "Alto" if pts > 140 else "Intermedio" if pts > 108 else "Bajo"
-        conducta = "Invasiva < 24h" if pts > 140 else "Invasiva en hosp." if pts > 108 else "Conservador"
-        
-        st.subheader(f"Resultado: {pts} puntos")
-        st.markdown(f"### Riesgo {riesgo_cat}")
-        st.table({"Categoría": ["Muy Alto", "Alto (>140)", "Bajo/Int"], "Reperfusión": ["<2h", "<24h", "Selectiva"]})
-        
-        # El botón de guardar aquí se queda fuera del formulario para que funcione el callback
-        st.session_state.temp_grace = (pts, f"{riesgo_cat} - {conducta}")
+    # 2. MOTOR DE CÁLCULO (Se ejecuta siempre)
+    pts = 0
+    # Puntos por Edad
+    if ed < 40: pts += 0
+    elif ed < 50: pts += 18
+    elif ed < 60: pts += 36
+    elif ed < 70: pts += 55
+    elif ed < 80: pts += 73
+    else: pts += 91
+    
+    # Puntos por FC
+    if fc < 70: pts += 0
+    elif fc < 100: pts += 7
+    elif fc < 150: pts += 24
+    elif fc < 200: pts += 46
+    else: pts += 64
+    
+    # Puntos por PAS
+    if ps < 80: pts += 63
+    elif ps < 100: pts += 53
+    elif ps < 120: pts += 43
+    elif ps < 140: pts += 34
+    elif ps < 160: pts += 24
+    else: pts += 0
+    
+    # Puntos por Creatinina
+    if cr < 0.4: pts += 1
+    elif cr < 0.8: pts += 4
+    elif cr < 1.2: pts += 7
+    elif cr < 1.6: pts += 10
+    elif cr < 2.0: pts += 13
+    else: pts += 21
+    
+    if paro: pts += 43
+    if st_seg: pts += 30
+    if enzimas: pts += 15
+    pts += {"I": 0, "II": 21, "III": 43, "IV": 64}[kl]
 
-    if 'temp_grace' in st.session_state:
-        st.button("💾 Guardar GRACE", on_click=save, args=("GRACE", st.session_state.temp_grace[0], st.session_state.temp_grace[1]))
+    st.write("---")
+
+    # 3. LÓGICA DE INTERPRETACIÓN (Aparece automáticamente)
+    if pts > 140:
+        riesgo_cat, color, conducta = "Alto", "🔴", "Estrategia invasiva temprana (< 24h)"
+        mortalidad = "> 3%"
+    elif pts > 108:
+        riesgo_cat, color, conducta = "Intermedio", "🟡", "Estrategia invasiva en hospitalización"
+        mortalidad = "1% - 3%"
+    else:
+        riesgo_cat, color, conducta = "Bajo", "🟢", "Manejo conservador / Evaluación no invasiva"
+        mortalidad = "< 1%"
+
+    # 4. MOSTRAR RESULTADOS
+    st.markdown(f"### {color} Puntaje GRACE: {pts} puntos")
+    
+    # Tarjeta de interpretación
+    st.markdown(f"""
+    <div style="padding: 20px; border-radius: 15px; background-color: #1f2937; border-left: 8px solid {'#e63946' if pts > 108 else '#2a9d8f'};">
+        <h4 style="margin: 0; color: white;">Riesgo {riesgo_cat}</h4>
+        <p style="margin: 5px 0; color: #d1d5db;"><b>Mortalidad Intrahospitalaria:</b> {mortalidad}</p>
+        <p style="margin: 0; color: #d1d5db;"><b>Conducta:</b> {conducta}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.write("")
+    
+    # 5. BOTÓN DE GUARDADO
+    st.button("💾 Guardar en Historial", 
+              on_click=save, 
+              args=("GRACE", pts, f"Riesgo {riesgo_cat} ({mortalidad}) - {conducta}"),
+              key="save_grace_final")
+
+    st.write("---")
+    # Tabla de referencia estática
+    st.caption("Referencia rápida de mortalidad intrahospitalaria:")
+    st.table({
+        "Categoría": ["Bajo", "Intermedio", "Alto"],
+        "Puntos": ["≤ 108", "109 - 140", "> 140"],
+        "Mortalidad": ["< 1%", "1 - 3%", "> 3%"]
+    })
