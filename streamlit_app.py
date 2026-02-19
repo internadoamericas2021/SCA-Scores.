@@ -215,27 +215,45 @@ elif st.session_state.p == "t_run":
                 st.session_state.step += 1
                 st.rerun()
                 
-    # 3. Interpretación de resultados
+# 3. Interpretación de resultados
     else:
         p_total = st.session_state.pts
+        
         if st.session_state.tipo == "STEMI":
             # Tabla de mortalidad STEMI a 30 días
-            mortalidad = {
+            mortalidad_stemi = {
                 0: "0.8%", 1: "1.6%", 2: "2.2%", 3: "4.4%", 4: "7.3%", 
-                5: "12%", 6: "16%", 7: "23%", 8: "27%", 9: "36%"
+                5: "12%", 6: "16%", 7: "23%", 8: "27%"
             }
-            riesgo_txt = mortalidad.get(p_total, "> 36%")
+            riesgo_val = mortalidad_stemi.get(p_total, "≥ 36%")
             color = "🔴" if p_total >= 5 else "🟡" if p_total >= 3 else "🟢"
             
-            st.markdown(f"### {color} Puntaje TIMI STEMI: {p_total}")
-            st.metric("Mortalidad estimada (30 días)", riesgo_txt)
-        else:
-            # (Aquí va la lógica de NSTEMI que ya pusimos antes...)
-            riesgo_txt = "Calculado" 
-            st.write(f"Puntaje NSTEMI: {p_total}")
+            interpretacion = f"Mortalidad a 30 días: {riesgo_val}"
+            st.markdown(f"### {color} TIMI STEMI: {p_total} puntos")
+            st.metric("Riesgo de Mortalidad", riesgo_val)
 
-        if st.button("💾 Guardar"):
-            save(f"TIMI {st.session_state.tipo}", p_total, f"({riesgo_txt})")
+        else: # NSTEMI
+            # Riesgo de MACE (muerte, IAM o isquemia grave) a 14 días
+            mace_nstemi = {
+                0: "4.7%", 1: "4.7%", 2: "8.3%", 3: "13.2%", 
+                4: "19.9%", 5: "26.2%", 6: "40.9%", 7: "40.9%"
+            }
+            riesgo_val = mace_nstemi.get(p_total, "40.9%")
+            color = "🔴" if p_total >= 5 else "🟡" if p_total >= 3 else "🟢"
+            
+            interpretacion = f"Riesgo MACE (14 días): {riesgo_val}"
+            st.markdown(f"### {color} TIMI NSTEMI: {p_total} puntos")
+            st.metric("Riesgo MACE", riesgo_val)
+            
+            # Guía rápida de conducta
+            if p_total >= 3:
+                st.warning("⚠️ Se recomienda estrategia invasiva temprana.")
+            else:
+                st.info("ℹ️ Riesgo bajo. Evaluar isquemia de forma no invasiva.")
+
+        if st.button("💾 Guardar en Historial"):
+            save(f"TIMI {st.session_state.tipo}", p_total, interpretacion)
+
 elif st.session_state.p == "grace":
     st.button("⬅️ Volver", on_click=lambda: nav("menu"))
     st.header("GRACE Score 2.0")
