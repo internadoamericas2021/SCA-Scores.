@@ -31,82 +31,52 @@ def save(escala, puntos, riesgo=""):
 
 # --- 3. PANTALLA: MENÚ PRINCIPAL ---
 if st.session_state.p == "menu":
-    # CSS Mejorado: Crea un contenedor que escala la imagen y pone el botón encima
-    st.markdown("""
-        <style>
-        .img-container {
-            position: relative;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        /* Forzamos al botón de Streamlit a ser una capa transparente total sobre la imagen */
-        .stButton > button {
-            border: none !important;
-            background: transparent !important;
-            color: transparent !important;
-            height: 150px !important; /* Ajusta según el tamaño de tus imágenes */
-            width: 100% !important;
-            position: absolute !important;
-            top: 0;
-            left: 0;
-            z-index: 10;
-        }
-        .stButton > button:active, .stButton > button:focus {
-            background: rgba(255, 255, 255, 0.2) !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
     st.markdown('<h1 style="text-align: center; color: #e63946;">🫀 SCA-Scores Pro</h1>', unsafe_allow_html=True)
     st.write("---")
 
-    # Rejilla de Imágenes-Botones
+    # Creamos la rejilla
     col1, col2 = st.columns(2)
 
     with col1:
-        # HEART
-        st.markdown('<div class="img-container">', unsafe_allow_html=True)
+        # HEART SCORE
         st.image("heart.png", use_container_width=True)
-        if st.button("H", key="btn_h"): nav("heart")
-        st.markdown('</div>', unsafe_allow_html=True)
+        if st.button("ACCEDER HEART", key="btn_h", use_container_width=True):
+            nav("heart")
         
-        # TIMI
-        st.markdown('<div class="img-container">', unsafe_allow_html=True)
+        st.write("") # Espaciador
+
+        # TIMI SCORE
         st.image("timi.png", use_container_width=True)
-        if st.button("T", key="btn_t"): nav("t_sel")
-        st.markdown('</div>', unsafe_allow_html=True)
+        if st.button("ACCEDER TIMI", key="btn_t", use_container_width=True):
+            nav("t_sel")
 
     with col2:
-        # GRACE
-        st.markdown('<div class="img-container">', unsafe_allow_html=True)
+        # GRACE SCORE
         st.image("grace.png", use_container_width=True)
-        if st.button("G", key="btn_g"): nav("grace")
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # KILLIP
-        st.markdown('<div class="img-container">', unsafe_allow_html=True)
-        st.image("killip.png", use_container_width=True)
-        if st.button("K", key="btn_k"): nav("kk")
-        st.markdown('</div>', unsafe_allow_html=True)
+        if st.button("ACCEDER GRACE", key="btn_g", use_container_width=True):
+            nav("grace")
 
-    # --- SECCIÓN DE REGISTROS (FUERA DE LAS COLUMNAS) ---
+        st.write("") # Espaciador
+
+        # KILLIP & KIMBALL
+        st.image("killip.png", use_container_width=True)
+        if st.button("ACCEDER KILLIP", key="btn_k", use_container_width=True):
+            nav("kk")
+
+    # --- SECCIÓN DE REGISTROS (HISTORIAL) ---
     st.write("---")
     st.subheader("📋 Pacientes Evaluados")
     
     if not st.session_state.h:
         st.info("No hay registros en este turno.")
     else:
-        # Mostramos los registros del historial
-        for idx, item in enumerate(reversed(st.session_state.h)):
-            with st.expander(f"🕒 {item['t']} - {item['e']}"):
-                st.write(f"**Resultado:** {item['p']} puntos")
-                if item['r']:
-                    st.write(f"**Interpretación:** {item['r']}")
+        for idx, i in enumerate(reversed(st.session_state.h)):
+            with st.expander(f"🕒 {i['t']} - {i['e']}"):
+                st.write(f"**Resultado:** {i['p']} puntos")
+                if i['r']:
+                    st.write(f"**Interpretación:** {i['r']}")
         
-        st.write("")
-        if st.button("🗑️ Borrar Historial", key="clear_h"):
+        if st.button("🗑️ Borrar Todo", key="del_hist"):
             st.session_state.h = []
             st.rerun()
 
