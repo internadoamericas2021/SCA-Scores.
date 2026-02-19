@@ -22,7 +22,7 @@ def nav(pantalla):
     st.session_state.p = pantalla
     st.session_state.pts = 0
     st.session_state.step = 0
-    st.rerun()
+    # st.rerun()  <-- ELIMINA O COMENTA ESTA LÍNEA
 
 def save(escala, puntos, riesgo=""):
     hora = datetime.datetime.now().strftime("%H:%M")
