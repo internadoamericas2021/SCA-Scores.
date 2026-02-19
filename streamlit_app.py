@@ -108,9 +108,41 @@ elif st.session_state.p == "t_run":
             st.session_state.step += 1
             st.rerun()
     else:
-        st.success(f"Puntaje Final: {st.session_state.pts}")
-        if st.button("Guardar Resultado"):
-            save(f"TIMI {st.session_state.tipo}", st.session_state.pts)
+        # Lógica de interpretación TIMI NSTEMI
+        p_total = st.session_state.pts
+        
+        if p_total <= 1:
+            riesgo = "Bajo (4.7%)"
+            color = "🟢"
+        elif p_total == 2:
+            riesgo = "Bajo (8.3%)"
+            color = "🟢"
+        elif p_total == 3:
+            riesgo = "Intermedio (13.2%)"
+            color = "🟡"
+        elif p_total == 4:
+            riesgo = "Intermedio (19.9%)"
+            color = "🟡"
+        elif p_total == 5:
+            riesgo = "Alto (26.2%)"
+            color = "🔴"
+        else: # 6 o 7 puntos
+            riesgo = "Alto (40.9%)"
+            color = "🔴"
+
+        st.markdown(f"### {color} Puntaje TIMI: {p_total}")
+        st.metric("Riesgo de MACE (14 días)", riesgo)
+        
+        # Tabla de referencia rápida
+        data_timi = {
+            "Puntos": ["0-2", "3-4", "5-7"],
+            "Riesgo": ["Bajo", "Intermedio", "Alto"],
+            "Mortalidad/IAM": ["< 8%", "13-20%", "> 26%"]
+        }
+        st.table(data_timi)
+
+        if st.button("💾 Guardar Resultado"):
+            save(f"TIMI {st.session_state.tipo}", p_total, f"({riesgo})")
 elif st.session_state.p == "grace":
     st.button("⬅️ Volver", on_click=lambda: nav("menu"))
     st.header("GRACE Score 2.0")
