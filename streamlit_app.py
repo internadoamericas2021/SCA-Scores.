@@ -78,7 +78,7 @@ if st.session_state.p == "menu":
     c3, c4 = st.columns(2)
     with c3:
         st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
-        st.image("timi.jpg", use_container_width=True) # TIMI
+        st.image("timi.png", use_container_width=True) # TIMI
         if st.button("T", key="btn_t"): nav("t_sel")
         st.markdown('</div>', unsafe_allow_html=True)
 
