@@ -227,3 +227,16 @@ elif st.session_state.p == "grace":
         if st_seg: pts += 30
         if enzimas: pts += 15
         pts += {"I": 0, "II": 21, "III": 43, "IV": 64}[kl]
+
+        riesgo_cat = "Alto" if pts > 140 else "Intermedio" if pts > 108 else "Bajo"
+        conducta = "Invasiva < 24h" if pts > 140 else "Invasiva en hosp." if pts > 108 else "Conservador"
+        
+        st.subheader(f"Resultado: {pts} puntos")
+        st.markdown(f"### Riesgo {riesgo_cat}")
+        st.table({"Categoría": ["Muy Alto", "Alto (>140)", "Bajo/Int"], "Reperfusión": ["<2h", "<24h", "Selectiva"]})
+        
+        # El botón de guardar aquí se queda fuera del formulario para que funcione el callback
+        st.session_state.temp_grace = (pts, f"{riesgo_cat} - {conducta}")
+
+    if 'temp_grace' in st.session_state:
+        st.button("💾 Guardar GRACE", on_click=save, args=("GRACE", st.session_state.temp_grace[0], st.session_state.temp_grace[1]))
