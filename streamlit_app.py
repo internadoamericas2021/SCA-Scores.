@@ -31,28 +31,30 @@ def save(escala, puntos, riesgo=""):
 
 # --- 3. PANTALLA: MENÚ PRINCIPAL ---
 if st.session_state.p == "menu":
-    # --- Estilo para botones invisibles sobre imágenes ---
+    # CSS Mejorado: Crea un contenedor que escala la imagen y pone el botón encima
     st.markdown("""
         <style>
-        .overlay-container {
+        .img-container {
             position: relative;
-            cursor: pointer;
-            margin-bottom: 20px;
+            width: 100%;
+            margin-bottom: 10px;
         }
-        /* Esto hace que el botón de Streamlit sea invisible pero cubra la imagen */
-        .stButton button {
-            position: absolute;
+        /* Forzamos al botón de Streamlit a ser una capa transparente total sobre la imagen */
+        .stButton > button {
+            border: none !important;
+            background: transparent !important;
+            color: transparent !important;
+            height: 150px !important; /* Ajusta según el tamaño de tus imágenes */
+            width: 100% !important;
+            position: absolute !important;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100% !important;
-            background: rgba(0,0,0,0) !important;
-            color: transparent !important;
-            border: none !important;
-            z-index: 2;
+            z-index: 10;
         }
-        .stButton button:hover {
-            background: rgba(255,255,255,0.1) !important; /* Un leve brillo al tocar */
+        .stButton > button:active, .stButton > button:focus {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border: none !important;
+            box-shadow: none !important;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -60,51 +62,55 @@ if st.session_state.p == "menu":
     st.markdown('<h1 style="text-align: center; color: #e63946;">🫀 SCA-Scores Pro</h1>', unsafe_allow_html=True)
     st.write("---")
 
-    # Fila 1: HEART y GRACE
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
-        st.image("heart.png", use_container_width=True) # HEART
+    # Rejilla de Imágenes-Botones
+    col1, col2 = st.columns(2)
+
+    with col1:
+        # HEART
+        st.markdown('<div class="img-container">', unsafe_allow_html=True)
+        st.image("heart.png", use_container_width=True)
         if st.button("H", key="btn_h"): nav("heart")
         st.markdown('</div>', unsafe_allow_html=True)
-
-    with c2:
-        st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
-        st.image("grace.png", use_container_width=True) # GRACE
-        if st.button("G", key="btn_g"): nav("grace")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # Fila 2: TIMI y KILLIP
-    c3, c4 = st.columns(2)
-    with c3:
-        st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
-        st.image("timi.png", use_container_width=True) # TIMI
+        
+        # TIMI
+        st.markdown('<div class="img-container">', unsafe_allow_html=True)
+        st.image("timi.png", use_container_width=True)
         if st.button("T", key="btn_t"): nav("t_sel")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with c4:
-        st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
-        st.image("killip.png", use_container_width=True) # KILLIP
+    with col2:
+        # GRACE
+        st.markdown('<div class="img-container">', unsafe_allow_html=True)
+        st.image("grace.png", use_container_width=True)
+        if st.button("G", key="btn_g"): nav("grace")
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # KILLIP
+        st.markdown('<div class="img-container">', unsafe_allow_html=True)
+        st.image("killip.png", use_container_width=True)
         if st.button("K", key="btn_k"): nav("kk")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- SECCIÓN DE REGISTROS (HISTORIAL) ---
+    # --- SECCIÓN DE REGISTROS (FUERA DE LAS COLUMNAS) ---
     st.write("---")
     st.subheader("📋 Pacientes Evaluados")
     
     if not st.session_state.h:
         st.info("No hay registros en este turno.")
     else:
-        for idx, i in enumerate(reversed(st.session_state.h)):
-            # Usamos un expander para que se vea limpio
-            with st.expander(f"🕒 {i['t']} - {i['e']}"):
-                st.write(f"**Resultado:** {i['p']} puntos")
-                if i['r']:
-                    st.write(f"**Interpretación:** {i['r']}")
+        # Mostramos los registros del historial
+        for idx, item in enumerate(reversed(st.session_state.h)):
+            with st.expander(f"🕒 {item['t']} - {item['e']}"):
+                st.write(f"**Resultado:** {item['p']} puntos")
+                if item['r']:
+                    st.write(f"**Interpretación:** {item['r']}")
         
-        if st.button("🗑️ Borrar Todo el Historial"):
+        st.write("")
+        if st.button("🗑️ Borrar Historial", key="clear_h"):
             st.session_state.h = []
             st.rerun()
+
+# --- AQUÍ CONTINÚA EL RESTO DE TUS PANTALLAS (elif st.session_state.p == "kk", etc) ---
 
 # --- 4. PANTALLA: KILLIP VISUAL ---
 elif st.session_state.p == "kk":
