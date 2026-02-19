@@ -107,40 +107,35 @@ if st.session_state.p == "menu":
         </div>
     """, unsafe_allow_html=True)
 
-# --- 4. PANTALLA: KILLIP & KIMBALL (VERSIÓN LIMPIA) ---
+# --- 4. PANTALLA: KILLIP & KIMBALL ---
 elif st.session_state.p == "kk":
-    # Botón de retorno
+    # El nav("menu") aquí ya activa el reinicio automático
     st.button("⬅️ Volver al Menú", on_click=lambda: nav("menu"), key="back_kk")
     
     st.markdown('<h2 style="color: #e63946; text-align: center;">Clasificación de Killip & Kimball</h2>', unsafe_allow_html=True)
     st.write("---")
 
-    st.info("Seleccione el estado clínico basado en la exploración física:")
-
-    # Diccionario de datos con tus imágenes personalizadas
     killips = [
-        {"cl": "I", "pts": "6%", "img": "killip1.png", "interp": "Sin signos de insuficiencia cardíaca. Pulmones limpios."},
-        {"cl": "II", "pts": "17%", "img": "killip2.png", "interp": "Insuficiencia cardíaca moderada. Estertores en bases, S3 o ingurgitación yugular."},
-        {"cl": "III", "pts": "38%", "img": "killip3.png", "interp": "Insuficiencia cardíaca grave. Edema agudo de pulmón (crepitantes en todo el pulmón)."},
-        {"cl": "IV", "pts": "81%", "img": "killip4.png", "interp": "Shock cardiogénico. Hipotensión (PAS < 90) y signos de hipoperfusión."}
+        {"cl": "I", "pts": "6%", "img": "killip1.png", "interp": "Pulmones limpios."},
+        {"cl": "II", "pts": "17%", "img": "killip2.png", "interp": "Estertores en bases, S3 o IY."},
+        {"cl": "III", "pts": "38%", "img": "killip3.png", "interp": "Edema agudo de pulmón."},
+        {"cl": "IV", "pts": "81%", "img": "killip4.png", "interp": "Shock cardiogénico (Hipotensión)."}
     ]
 
-    # Renderizado de Tarjetas
     for k in killips:
         with st.container():
             c1, c2 = st.columns([1.2, 2.5])
             with c1:
                 try:
-                    # Mostrará tus imágenes killip1.png, killip2.png...
                     st.image(k["img"], use_container_width=True)
                 except:
                     st.warning(f"Falta: {k['img']}")
-            
             with c2:
                 st.markdown(f"### Clase {k['cl']}")
-                st.write(f"**Mortalidad estimada:** {k['pts']}")
+                st.write(f"**Mortalidad:** {k['pts']}")
                 st.write(f"**Clínica:** {k['interp']}")
                 
+                # Aquí usamos el nav("menu") dentro de save()
                 if st.button(f"Seleccionar Clase {k['cl']}", key=f"sel_kk_{k['cl']}", use_container_width=True):
                     save(f"Killip & Kimball: Clase {k['cl']}", 
                          f"{k['pts']} mortalidad", 
