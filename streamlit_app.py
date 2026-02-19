@@ -33,6 +33,41 @@ def save(escala, puntos, riesgo=""):
     st.session_state.step = 0
 
 # --- 3. PANTALLA: MENÚ PRINCIPAL ---
+# --- SECCIÓN DE AYUDA, GLOSARIO Y BIBLIOGRAFÍA ---
+with st.expander("❓ Guía, Glosario y Bibliografía"):
+    tab1, tab2, tab3 = st.tabs(["📖 Guía de Uso", "🔍 Glosario", "📚 Bibliografía"])
+    
+    with tab1:
+        st.markdown("""
+        **Flujo de Trabajo:**
+        1. Seleccione la escala según el cuadro clínico del paciente.
+        2. Ingrese los datos solicitados (ECG, biomarcadores, constantes).
+        3. Observe la **Tarjeta de Resultado** con la conducta sugerida.
+        4. Guarde el registro para consultas posteriores en el historial.
+        """)
+
+    with tab2:
+        st.markdown("""
+        | Término | Definición |
+        | :--- | :--- |
+        | **MACE** | Eventos Cardiacos Adversos Mayores (Muerte, IAM, Revascularización). |
+        | **LSN** | Límite Superior de la Normalidad (Troponinas). |
+        | **BRI** | Bloqueo de Rama Izquierda (nuevo o presumiblemente nuevo). |
+        | **Killip I** | Sin signos de insuficiencia cardíaca. |
+        | **Killip II** | Estertores crepitantes, S3 o hipertensión venosa capilar. |
+        | **Killip III** | Edema agudo de pulmón franco. |
+        | **Killip IV** | Shock cardiogénico (Hipotensión <90mmHg, oliguria). |
+        """)
+
+    with tab3:
+        st.markdown("""
+        **Fuentes Originales:**
+        * **HEART Score:** *Sixau et al. (2008).* Chest pain in the emergency room: the HEART score.
+        * **GRACE 2.0:** *Fox et al. (2014).* Improved risk prediction of mortality or heart failure in ACS.
+        * **TIMI NSTEMI:** *Antman et al. (2000).* The TIMI risk score for NSTEMI/UA.
+        * **TIMI STEMI:** *Morrow et al. (2000).* TIMI risk score for STEMI.
+        * **Killip:** *Killip & Kimball (1967).* Treatment of myocardial infarction in a coronary care unit.
+        """)
 if st.session_state.p == "menu":
     col_izq, col_logo, col_tit, col_der = st.columns([1, 1, 4, 1])
     with col_logo:
