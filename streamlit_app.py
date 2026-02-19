@@ -112,32 +112,67 @@ elif st.session_state.p == "kk":
     st.button("⬅️ Volver", on_click=lambda: nav("menu"))
     # ... aquí sigue el resto de tu código de Killip ...
 
-# --- 4. PANTALLA: KILLIP VISUAL ---
+# --- 4. PANTALLA: KILLIP & KIMBALL CON IMÁGENES ---
 elif st.session_state.p == "kk":
     st.button("⬅️ Volver al Menú", on_click=lambda: nav("menu"))
     
     st.markdown('<h2 style="color: #e63946;">Clasificación de Killip & Kimball</h2>', unsafe_allow_html=True)
-    st.info("Seleccione la clase clínica del paciente basada en el examen físico:")
+    st.info("Seleccione el estado clínico basado en la exploración física y hallazgos pulmonares:")
 
-    # Lista de clases con sus iconos oficiales de Flaticon
+    # Definición de las clases con tus imágenes locales y la interpretación oficial
     killips = [
-        {"cl": "I", "pts": "6%", "de": "Sin falla cardíaca. Pulmones limpios.", "img": "https://cdn-icons-png.flaticon.com/512/2491/2491280.png"},
-        {"cl": "II", "pts": "17%", "de": "Estertores basales, S3, congestión pulmonar.", "img": "https://cdn-icons-png.flaticon.com/512/2491/2491321.png"},
-        {"cl": "III", "pts": "38%", "de": "Edema agudo de pulmón franco.", "img": "https://cdn-icons-png.flaticon.com/512/2864/2864323.png"},
-        {"cl": "IV", "pts": "81%", "de": "Shock cardiogénico (hipotensión, oliguria).", "img": "https://cdn-icons-png.flaticon.com/512/564/564793.png"}
+        {
+            "cl": "I", 
+            "pts": "6%", 
+            "img": "killip1.png", 
+            "de": "Sin signos de insuficiencia cardíaca.",
+            "interp": "Pulmones limpios, sin estertores ni tercer ruido (S3)."
+        },
+        {
+            "cl": "II", 
+            "pts": "17%", 
+            "img": "killip2.png", 
+            "de": "Insuficiencia cardíaca leve a moderada.",
+            "interp": "Estertores crepitantes en bases pulmonares, S3 o ingurgitación yugular."
+        },
+        {
+            "cl": "III", 
+            "pts": "38%", 
+            "img": "killip3.png", 
+            "de": "Insuficiencia cardíaca grave (Edema Agudo).",
+            "interp": "Edema agudo de pulmón con estertores en más del 50% de los campos pulmonares."
+        },
+        {
+            "cl": "IV", 
+            "pts": "81%", 
+            "img": "killip4.png", 
+            "de": "Shock Cardiogénico.",
+            "interp": "Hipotensión (PAS < 90mmHg), signos de hipoperfusión tisular, corazón dilatado y falla multiorgánica."
+        }
     ]
 
+    # Renderizado de las tarjetas visuales
     for k in killips:
-        # Usamos una tarjeta visual para cada clase
         with st.container():
-            c1, c2 = st.columns([1, 4])
-            with c1:
-                st.image(k["img"], width=70)
-            with c2:
-                # El botón ahora es más grande y fácil de presionar
-                if st.button(f"CLASE {k['cl']}\nMortalidad: {k['pts']}", key=f"kk_{k['cl']}", use_container_width=True):
-                    save(f"Killip {k['cl']}", k["pts"], f"Descripción: {k['de']}")
-            st.markdown(f"<p style='font-size: 0.9em; color: #9ca3af; margin-left: 85px;'>{k['de']}</p>", unsafe_allow_html=True)
+            col_img, col_txt = st.columns([1.2, 3])
+            
+            with col_img:
+                # Intentará cargar tu imagen local; si no existe, mostrará un marcador
+                try:
+                    st.image(k["img"], use_container_width=True)
+                except:
+                    st.warning(f"Falta {k['img']}")
+            
+            with col_txt:
+                st.markdown(f"### Clase {k['cl']}")
+                st.markdown(f"**Mortalidad estimada:** {k['pts']}")
+                st.write(k['interp'])
+                
+                if st.button(f"Seleccionar Clase {k['cl']}", key=f"btn_{k['cl']}", use_container_width=True):
+                    save(f"Killip & Kimball: Clase {k['cl']}", 
+                         f"Mortalidad {k['pts']}", 
+                         f"Hallazgos: {k['interp']}")
+            
             st.write("---")
 
 # --- 5. PANTALLA: HEART SCORE (CORREGIDA)
