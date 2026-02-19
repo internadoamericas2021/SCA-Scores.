@@ -124,13 +124,25 @@ elif st.session_state.p == "heart":
                 st.rerun()
     else:
         p = st.session_state.pts
-        if p <= 3: riesgo, tasa, color, conducta = "Bajo", "0.9-1.7%", "🟢", "Alta probable"
-        elif p <= 6: riesgo, tasa, color, conducta = "Intermedio", "12-16.6%", "🟡", "Observación"
-        else: riesgo, tasa, color, conducta = "Alto", "50-65%", "🔴", "Estrategia invasiva"
-        
+        if p <= 3:
+            riesgo, tasa, color, conducta, hex_color = "Bajo", "0.9 - 1.7%", "🟢", "Alta probable / Manejo ambulatorio", "#2a9d8f"
+        elif p <= 6:
+            riesgo, tasa, color, conducta, hex_color = "Intermedio", "12 - 16.6%", "🟡", "Observación / Pruebas de detección de isquemia", "#e9c46a"
+        else:
+            riesgo, tasa, color, conducta, hex_color = "Alto", "50 - 65%", "🔴", "Estrategia invasiva temprana / Tratamiento agresivo", "#e63946"
+
         st.markdown(f"### {color} Resultado: {p} puntos")
-        st.success(f"**Riesgo {riesgo}**: MACE a las 6 semanas: {tasa}")
-        st.info(f"**Conducta sugerida:** {conducta}")
+        
+        # TARJETA VISUAL HEART
+        st.markdown(f"""
+        <div style="padding: 20px; border-radius: 15px; background-color: #1f2937; border-left: 8px solid {hex_color};">
+            <h4 style="margin: 0; color: white;">Riesgo {riesgo}</h4>
+            <p style="margin: 5px 0; color: #d1d5db;"><b>MACE (6 semanas):</b> {tasa}</p>
+            <p style="margin: 0; color: #d1d5db;"><b>Conducta:</b> {conducta}</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.write("")
         st.button("💾 Guardar en Historial", on_click=save, args=("HEART", p, f"Riesgo {riesgo} ({tasa})"), key="save_h")
 
 # --- 6. PANTALLA: TIMI ---
@@ -161,18 +173,33 @@ elif st.session_state.p == "t_run":
             if c2.button("NO"): st.session_state.step += 1; st.rerun()
     else:
         p = st.session_state.pts
-        if st.session_state.tipo == "STEMI":
+        tipo = st.session_state.tipo
+        
+        if tipo == "STEMI":
             mort = {0: "0.8%", 1: "1.6%", 2: "2.2%", 3: "4.4%", 4: "7.3%", 5: "12%", 6: "16%", 7: "23%", 8: "27%"}
-            riesgo_v = mort.get(p, "≥ 36%")
-            interp = f"Mortalidad 30 días: {riesgo_v}"
+            riesgo_val = mort.get(p, "≥ 36%")
+            etiqueta = "Mortalidad (30 días)"
+            hex_color = "#e63946" if p >= 5 else "#2a9d8f"
+            conducta = "Reperfusión inmediata indicada" if p >= 3 else "Manejo estándar según protocolo"
         else:
             mace = {0: "4.7%", 1: "4.7%", 2: "8.3%", 3: "13.2%", 4: "19.9%", 5: "26.2%", 6: "40.9%", 7: "40.9%"}
-            riesgo_v = mace.get(p, "40.9%")
-            interp = f"Riesgo MACE (14d): {riesgo_v}"
-        
-        st.metric(f"TIMI {st.session_state.tipo}", f"{p} pts")
-        st.write(f"**Interpretación:** {interp}")
-        st.button("💾 Guardar en Historial", on_click=save, args=(f"TIMI {st.session_state.tipo}", p, interp), key="save_t")
+            riesgo_val = mace.get(p, "40.9%")
+            etiqueta = "Riesgo MACE (14 días)"
+            hex_color = "#e63946" if p >= 3 else "#2a9d8f"
+            conducta = "Estrategia invasiva temprana" if p >= 3 else "Evaluación no invasiva de isquemia"
+
+        st.markdown(f"### Puntaje TIMI {tipo}: {p} pts")
+
+        # TARJETA VISUAL TIMI
+        st.markdown(f"""
+        <div style="padding: 20px; border-radius: 15px; background-color: #1f2937; border-left: 8px solid {hex_color};">
+            <h4 style="margin: 0; color: white;">{etiqueta}: {riesgo_val}</h4>
+            <p style="margin: 10px 0 0 0; color: #d1d5db;"><b>Conducta sugerida:</b> {conducta}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.write("")
+        st.button("💾 Guardar en Historial", on_click=save, args=(f"TIMI {tipo}", p, f"{etiqueta}: {riesgo_val}"), key="save_t")
 
 # --- 7. PANTALLA: GRACE (CORREGIDA CON INTERPRETACIÓN DINÁMICA) ---
 elif st.session_state.p == "grace":
