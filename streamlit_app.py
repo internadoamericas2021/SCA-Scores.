@@ -71,6 +71,13 @@ if st.session_state.p == "menu":
             st.session_state.h = []
             st.rerun()
 
+    st.markdown("""
+        <div style="margin-top: 50px; padding: 15px; background-color: #1a1a1a; border-radius: 10px; border-left: 5px solid #e63946;">
+            <p style="color: #d1d5db; font-size: 0.8em; margin: 0; line-height: 1.4;">
+                <b style="color: #e63946;">⚠️ AVISO MÉDICO LEGAL:</b> Esta app es apoyo clínico. El uso es responsabilidad del usuario.
+            </p>
+        </div> """, unsafe_allow_html=True)
+
 # --- 4. PANTALLA: KILLIP & KIMBALL ---
 elif st.session_state.p == "kk":
     st.button("⬅️ Volver al Menú", on_click=nav, args=("menu",), key="back_kk")
@@ -91,8 +98,9 @@ elif st.session_state.p == "kk":
                 else: st.warning("Falta imagen")
             with c2:
                 st.markdown(f"### Clase {k['cl']}")
-                st.write(f"**Mortalidad:** {k['pts']} | **Clínica:** {k['interp']}")
-                st.button(f"Seleccionar Clase {k['cl']}", key=f"btn_kk_{k['cl']}", on_click=save, args=(f"Killip {k['cl']}", k['pts'], k['interp']))
+                st.write(f"**Mortalidad:** {k['pts']}")
+                st.write(f"**Clínica:** {k['interp']}")
+                st.button(f"Seleccionar Clase {k['cl']}", key=f"btn_kk_{k['cl']}", on_click=save, args=(f"Killip {k['cl']}", k['pts'], f"Hallazgos: {k['interp']}"))
         st.write("---")
 
 # --- 5. PANTALLA: HEART SCORE ---
@@ -116,12 +124,13 @@ elif st.session_state.p == "heart":
                 st.rerun()
     else:
         p = st.session_state.pts
-        if p <= 3: riesgo, tasa, color = "Bajo", "0.9-1.7%", "🟢"
-        elif p <= 6: riesgo, tasa, color = "Intermedio", "12-16.6%", "🟡"
-        else: riesgo, tasa, color = "Alto", "50-65%", "🔴"
+        if p <= 3: riesgo, tasa, color, conducta = "Bajo", "0.9-1.7%", "🟢", "Alta probable"
+        elif p <= 6: riesgo, tasa, color, conducta = "Intermedio", "12-16.6%", "🟡", "Observación"
+        else: riesgo, tasa, color, conducta = "Alto", "50-65%", "🔴", "Estrategia invasiva"
         
         st.markdown(f"### {color} Resultado: {p} puntos")
-        st.success(f"**Riesgo {riesgo}** (MACE: {tasa})")
+        st.success(f"**Riesgo {riesgo}**: MACE a las 6 semanas: {tasa}")
+        st.info(f"**Conducta sugerida:** {conducta}")
         st.button("💾 Guardar en Historial", on_click=save, args=("HEART", p, f"Riesgo {riesgo} ({tasa})"), key="save_h")
 
 # --- 6. PANTALLA: TIMI ---
@@ -133,13 +142,14 @@ elif st.session_state.p == "t_sel":
 elif st.session_state.p == "t_run":
     st.button("⬅️ Reiniciar", on_click=nav, args=("t_sel",))
     if st.session_state.tipo == "NSTEMI":
-        t_qs = [("Edad ≥ 65?", 1), ("3+ Factores Riesgo?", 1), ("Estenosis ≥ 50%?", 1), ("Cambios ST?", 1), ("Angina Grave?", 1), ("Uso AAS 7d?", 1), ("Marcadores (+)?", 1)]
+        t_qs = [("Edad ≥ 65?", 1), ("3+ Factores Riesgo?", 1), ("Estenosis ≥ 50%?", 1), ("Cambios ST?", 1), ("Angina Grave (2+ en 24h)?", 1), ("Uso AAS 7d?", 1), ("Marcadores (+)?", 1)]
     else:
-        t_qs = [("Edad?", "especial"), ("PAS < 100 mmHg?", 3), ("FC > 100 lpm?", 2), ("Killip II-IV?", 2), ("Infarto Anterior/BRI?", 1), ("Peso < 67 kg?", 1), ("Antecedentes?", 1), ("Tiempo > 4h?", 1)]
+        t_qs = [("Edad?", "especial"), ("PAS < 100 mmHg? (3 pts)", 3), ("FC > 100 lpm? (2 pts)", 2), ("Killip II-IV? (2 pts)", 2), ("Infarto Anterior o BRI? (1 pt)", 1), ("Peso < 67 kg? (1 pt)", 1), ("DM, HTA o Angina? (1 pt)", 1), ("Tiempo > 4h? (1 pt)", 1)]
 
     if st.session_state.step < len(t_qs):
         pregunta, puntos = t_qs[st.session_state.step]
         st.subheader(f"TIMI {st.session_state.tipo}")
+        st.info(pregunta)
         if puntos == "especial":
             c1, c2, c3 = st.columns(3)
             if c1.button("≥75 (3)"): st.session_state.pts += 3; st.session_state.step += 1; st.rerun()
@@ -151,27 +161,69 @@ elif st.session_state.p == "t_run":
             if c2.button("NO"): st.session_state.step += 1; st.rerun()
     else:
         p = st.session_state.pts
-        interp = f"Puntos: {p}" # Simplificado para el ejemplo
-        st.metric("Puntaje TIMI", p)
+        if st.session_state.tipo == "STEMI":
+            mort = {0: "0.8%", 1: "1.6%", 2: "2.2%", 3: "4.4%", 4: "7.3%", 5: "12%", 6: "16%", 7: "23%", 8: "27%"}
+            riesgo_v = mort.get(p, "≥ 36%")
+            interp = f"Mortalidad 30 días: {riesgo_v}"
+        else:
+            mace = {0: "4.7%", 1: "4.7%", 2: "8.3%", 3: "13.2%", 4: "19.9%", 5: "26.2%", 6: "40.9%", 7: "40.9%"}
+            riesgo_v = mace.get(p, "40.9%")
+            interp = f"Riesgo MACE (14d): {riesgo_v}"
+        
+        st.metric(f"TIMI {st.session_state.tipo}", f"{p} pts")
+        st.write(f"**Interpretación:** {interp}")
         st.button("💾 Guardar en Historial", on_click=save, args=(f"TIMI {st.session_state.tipo}", p, interp), key="save_t")
 
 # --- 7. PANTALLA: GRACE ---
 elif st.session_state.p == "grace":
     st.button("⬅️ Volver", on_click=nav, args=("menu",))
+    st.header("GRACE Score 2.0")
     with st.form("grace_form"):
         col1, col2 = st.columns(2)
         with col1:
-            edad = st.number_input("Edad", 18, 100, 65)
+            ed = st.number_input("Edad", 18, 100, 65)
             fc = st.number_input("FC (lpm)", 30, 200, 80)
+            ps = st.number_input("PAS (mmHg)", 50, 250, 120)
         with col2:
-            pas = st.number_input("PAS (mmHg)", 50, 250, 120)
-            creat = st.number_input("Creatinina", 0.1, 10.0, 1.0)
-        submit = st.form_submit_button("Calcular GRACE")
-        if submit:
-            # Lógica simplificada de puntos para demostración
-            p_g = int(edad * 0.5 + fc * 0.2 + (200-pas) * 0.1) 
-            st.session_state.pts = p_g
-    
-    if st.session_state.pts > 0:
-        st.subheader(f"Resultado: {st.session_state.pts} puntos")
-        st.button("💾 Guardar GRACE", on_click=save, args=("GRACE", st.session_state.pts, "Evaluación completa"), key="save_g")
+            cr = st.number_input("Creatinina (mg/dL)", 0.1, 10.0, 1.0)
+            kl = st.selectbox("Clase Killip", ["I", "II", "III", "IV"])
+        
+        paro = st.checkbox("Paro cardíaco al ingreso")
+        st_seg = st.checkbox("Desviación del segmento ST")
+        enzimas = st.checkbox("Enzimas elevadas")
+        submit = st.form_submit_button("Calcular Riesgo GRACE")
+
+    if submit:
+        pts = 0
+        # Edad
+        if ed < 40: pts += 0
+        elif ed < 50: pts += 18
+        elif ed < 60: pts += 36
+        elif ed < 70: pts += 55
+        elif ed < 80: pts += 73
+        else: pts += 91
+        # FC
+        if fc < 70: pts += 0
+        elif fc < 100: pts += 7
+        elif fc < 150: pts += 24
+        elif fc < 200: pts += 46
+        else: pts += 64
+        # PAS
+        if ps < 80: pts += 63
+        elif ps < 100: pts += 53
+        elif ps < 120: pts += 43
+        elif ps < 140: pts += 34
+        elif ps < 160: pts += 24
+        else: pts += 0
+        # Creatinina
+        if cr < 0.4: pts += 1
+        elif cr < 0.8: pts += 4
+        elif cr < 1.2: pts += 7
+        elif cr < 1.6: pts += 10
+        elif cr < 2.0: pts += 13
+        else: pts += 21
+        
+        if paro: pts += 43
+        if st_seg: pts += 30
+        if enzimas: pts += 15
+        pts += {"I": 0, "II": 21, "III": 43, "IV": 64}[kl]
