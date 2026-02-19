@@ -2,7 +2,7 @@ import streamlit as st
 import datetime
 
 # --- 1. CONFIGURACIÓN Y ESTILO ---
-st.set_page_config(page_title="SCA-Scores Pro", page_icon="🫀", layout="centered")
+st.set_page_config(page_title="SCA-Scores Pro", page_icon="logo.png", layout="centered")
 
 st.markdown("""
     <style>
