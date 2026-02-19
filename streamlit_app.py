@@ -138,7 +138,10 @@ elif st.session_state.p == "kk":
                 st.markdown(f"### Clase {k['cl']}")
                 st.write(f"**Mortalidad:** {k['pts']}")
                 st.write(f"**Clínica:** {k['interp']}")
-                
+                # Dentro del bucle de Killip...
+                if st.button(f"Seleccionar Clase {k['cl']}", key=f"sel_kk_{k['cl']}", use_container_width=True):
+                    save(f"Killip {k['cl']}", k['pts'], k['interp'])
+                    st.rerun() # Solo aquí, fuera de un callback, es seguro usarlo para volver al menú rápido
                 # Aquí usamos el nav("menu") dentro de save()
                 if st.button(f"Seleccionar Clase {k['cl']}", key=f"sel_kk_{k['cl']}", use_container_width=True):
                     save(f"Killip & Kimball: Clase {k['cl']}", 
