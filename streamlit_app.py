@@ -96,7 +96,7 @@ if st.session_state.p == "menu":
     # Dentro del historial, debajo del título "Pacientes Evaluados"
 st.caption("Los datos se almacenan localmente en la sesión actual. No se guardan en servidores externos.")
     
-    if not st.session_state.h:
+if not st.session_state.h:
         st.info("No hay registros en este turno.")
     else:
         for idx, i in enumerate(reversed(st.session_state.h)):
