@@ -112,30 +112,55 @@ elif st.session_state.p == "kk":
         if c2.button(f"Seleccionar Clase {k['cl']}: {k['de']}", key=k['cl']):
             save(f"Killip {k['cl']}", k["pts"])
 
-# --- 5. PANTALLA: HEART SCORE (CORREGIDA) ---
+# --- 5. PANTALLA: HEART SCORE (CORREGIDA)
 elif st.session_state.p == "heart":
     st.button("⬅️ Cancelar", on_click=lambda: nav("menu"))
+    
     qs = [
         ("Historia", [("Levemente sospechosa", 0), ("Moderadamente sospechosa", 1), ("Altamente sospechosa", 2)]),
         ("ECG", [("Normal", 0), ("Repolarización inespecífica", 1), ("Depresión ST significativa", 2)]),
         ("Edad", [("< 45 años", 0), ("45 - 64 años", 1), ("≥ 65 años", 2)]),
-        ("Riesgo", [("0 factores", 0), ("1-2 factores", 1), ("≥ 3 o antecedente vascular", 2)]),
-        ("Troponina", [("Normal", 0), ("1-3x Límite", 1), ("> 3x Límite", 2)])
+        ("Riesgo (Factores)", [("0 factores", 0), ("1-2 factores", 1), ("≥ 3 o antecedente vascular", 2)]),
+        ("Troponina", [("Normal (≤ LSN)", 0), ("1-3x LSN", 1), ("> 3x LSN", 2)])
     ]
     
     if st.session_state.step < len(qs):
         actual = qs[st.session_state.step]
         st.subheader(actual[0])
+        # Botones de opción
         for texto, valor in actual[1]:
-            if st.button(texto):
+            if st.button(texto, key=f"h_{st.session_state.step}_{valor}"):
                 st.session_state.pts += valor
                 st.session_state.step += 1
                 st.rerun()
     else:
-        riesgo = "Bajo" if st.session_state.pts <= 3 else "Intermedio" if st.session_state.pts <= 6 else "Alto"
-        st.success(f"Resultado: {st.session_state.pts} puntos ({riesgo})")
-        if st.button("Guardar en Historial"):
-            save("HEART", st.session_state.pts, f"({riesgo})")
+        # --- LÓGICA DE INTERPRETACIÓN ---
+        p = st.session_state.pts
+        if p <= 3:
+            riesgo = "Bajo"
+            tasa = "0.9 - 1.7%"
+            recomendacion = "Alta probable / Manejo ambulatorio"
+            color = "🟢"
+        elif p <= 6:
+            riesgo = "Intermedio"
+            tasa = "12 - 16.6%"
+            recomendacion = "Observación / Pruebas de detección de isquemia"
+            color = "🟡"
+        else:
+            riesgo = "Alto"
+            tasa = "50 - 65%"
+            recomendacion = "Estrategia invasiva temprana / Tratamiento agresivo"
+            color = "🔴"
+
+        # Mostrar Resultado Visual
+        st.markdown(f"### {color} Resultado: {p} puntos")
+        st.success(f"**Riesgo {riesgo}**: MACE a las 6 semanas: {tasa}")
+        st.info(f"**Conducta sugerida:** {recomendacion}")
+
+        # Guardar con la interpretación completa
+        interpretacion_final = f"Riesgo {riesgo} ({tasa})"
+        if st.button("💾 Guardar en Historial"):
+            save("HEART", p, interpretacion_final)
 
 # --- 6. PANTALLA: TIMI ---
 elif st.session_state.p == "t_sel":
