@@ -26,8 +26,12 @@ def nav(pantalla):
 
 def save(escala, puntos, riesgo=""):
     hora = datetime.datetime.now().strftime("%H:%M")
-    st.session_state.h.append({"t": hora, "e": escala, "p": puntos, "r": riesgo})
-    nav("menu")
+    # Insertamos al principio para que el más reciente salga arriba
+    st.session_state.h.insert(0, {"t": hora, "e": escala, "p": puntos, "r": riesgo})
+    # Cambiamos a la pantalla de menú
+    st.session_state.p = "menu"
+    # Aquí sí podemos usar rerun si el botón no tiene un callback asignado, 
+    # pero como lo llamamos desde botones de selección, lo ideal es dejar que fluya.
 
 # --- 3. PANTALLA: MENÚ PRINCIPAL ---
 if st.session_state.p == "menu":
