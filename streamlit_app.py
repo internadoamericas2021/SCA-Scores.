@@ -32,23 +32,23 @@ def save(escala, puntos, riesgo=""):
 # --- 3. PANTALLA: MENÚ PRINCIPAL ---
 if st.session_state.p == "menu":
     import os
-
-    # Encabezado con tu nuevo Logotipo
-    col_logo, col_tit = st.columns([1, 5])
+    
+    # Creamos columnas para centrar el logo y el título
+    col_izq, col_logo, col_tit, col_der = st.columns([1, 1, 4, 1])
     
     with col_logo:
-        # Buscamos el archivo que renombraste a logo.png
-        if os.path.exists("logo.png"):
-            st.image("logo.png", width=70)
-       
+        # Usamos el nuevo nombre del archivo
+        if os.path.exists("icono.png"):
+            st.image("icono.png", width=60)
+        else:
+            st.write("❤️") # Respaldo si no encuentra la imagen
+
     with col_tit:
-        # Título alineado con el logo
-        st.markdown('<h1 style="color: #e63946; margin-top: 5px; font-size: 2.2em;">SCA-Scores Pro</h1>', unsafe_allow_html=True)
+        st.markdown('<h1 style="color: #e63946; margin-left: -20px;">SCA-Scores Pro</h1>', unsafe_allow_html=True)
     
     st.write("---")
 
-    # (Aquí sigue el resto de tu rejilla de imágenes y botones que ya funciona)
-
+    
     # Creamos la rejilla
     col1, col2 = st.columns(2)
 
