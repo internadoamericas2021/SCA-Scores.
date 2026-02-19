@@ -31,44 +31,70 @@ def save(escala, puntos, riesgo=""):
 
 # --- 3. PANTALLA: MENÚ PRINCIPAL ---
 if st.session_state.p == "menu":
-    st.markdown('<h1 style="text-align: center;">🫀 SCA-Scores Pro</h1>', unsafe_allow_stdio=True)
-    
-    # Definimos las rutas de tus imágenes (asegúrate de que los nombres coincidan)
-    # Si las subiste a GitHub, solo usa el nombre del archivo
-    img_heart = "image_7e5193.png"
-    img_grace = "image_7e50c3.png"
-    img_timi = "image_7e54a0.jpg"
-    img_kk = "image_7e5483.png"
+    # Estilo para hacer los botones invisibles y posicionarlos sobre la imagen
+    st.markdown("""
+        <style>
+        .img-button-container {
+            position: relative;
+            width: 100%;
+            max-width: 250px;
+            margin: auto;
+        }
+        .stButton>button {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent !important;
+            color: transparent !important;
+            border: none !important;
+            z-index: 10;
+        }
+        /* Efecto de pulso al pasar el mouse/dedo */
+        .img-button-container:active {
+            transform: scale(0.95);
+            transition: 0.2s;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-    # Fila 1: HEART y GRACE
-    col1, col2 = st.columns(2)
-    with col1:
-        st.image(img_heart, use_container_width=True)
-        if st.button("Abrir HEART Score", key="btn_heart"):
-            nav("heart")
-            
-    with col2:
-        st.image(img_grace, use_container_width=True)
-        if st.button("Abrir GRACE Score", key="btn_grace"):
-            nav("grace")
-
-    st.write("") # Espacio
-
-    # Fila 2: TIMI y KILLIP
-    col3, col4 = st.columns(2)
-    with col3:
-        st.image(img_timi, use_container_width=True)
-        if st.button("Abrir TIMI Score", key="btn_timi"):
-            nav("t_sel")
-            
-    with col4:
-        st.image(img_kk, use_container_width=True)
-        if st.button("Abrir Killip & Kimball", key="btn_kk"):
-            nav("kk")
-
-    # Historial (se mantiene igual abajo)
+    st.markdown('<h1 style="text-align: center; color: #e63946;">🫀 SCA-Scores Pro</h1>', unsafe_allow_html=True)
     st.write("---")
-    # ... resto del código del historial ...
+
+    # Rejilla de botones
+    col1, col2 = st.columns(2)
+
+    with col1:
+        # Botón HEART
+        st.markdown('<div class="img-button-container">', unsafe_allow_html=True)
+        st.image("heart.png", use_container_width=True)
+        if st.button("H", key="h_btn"): nav("heart")
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.write("")
+
+        # Botón TIMI
+        st.markdown('<div class="img-button-container">', unsafe_allow_html=True)
+        st.image("timi.png", use_container_width=True)
+        if st.button("T", key="t_btn"): nav("t_sel")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with col2:
+        # Botón GRACE
+        st.markdown('<div class="img-button-container">', unsafe_allow_html=True)
+        st.image("grace.png", use_container_width=True)
+        if st.button("G", key="g_btn"): nav("grace")
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.write("")
+
+        # Botón KILLIP
+        st.markdown('<div class="img-button-container">', unsafe_allow_html=True)
+        st.image("killip.png", use_container_width=True)
+        if st.button("K", key="k_btn"): nav("kk")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.write("---")
+    # (Aquí sigue el código del historial que ya tenías)
 
 # --- 4. PANTALLA: KILLIP VISUAL ---
 elif st.session_state.p == "kk":
