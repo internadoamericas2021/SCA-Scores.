@@ -114,18 +114,31 @@ elif st.session_state.p == "kk":
 
 # --- 4. PANTALLA: KILLIP VISUAL ---
 elif st.session_state.p == "kk":
-    st.button("⬅️ Volver", on_click=lambda: nav("menu"))
+    st.button("⬅️ Volver al Menú", on_click=lambda: nav("menu"))
+    
+    st.markdown('<h2 style="color: #e63946;">Clasificación de Killip & Kimball</h2>', unsafe_allow_html=True)
+    st.info("Seleccione la clase clínica del paciente basada en el examen físico:")
+
+    # Lista de clases con sus iconos oficiales de Flaticon
     killips = [
-        {"cl": "I", "pts": 0, "de": "Sin falla cardíaca. Pulmones limpios.", "img": "https://cdn-icons-png.flaticon.com/512/2491/2491280.png"},
-        {"cl": "II", "pts": 20, "de": "Estertores basales, S3.", "img": "https://cdn-icons-png.flaticon.com/512/2491/2491321.png"},
-        {"cl": "III", "pts": 39, "de": "Edema agudo de pulmón.", "img": "https://cdn-icons-png.flaticon.com/512/2864/2864323.png"},
-        {"cl": "IV", "pts": 59, "de": "Shock cardiogénico.", "img": "https://cdn-icons-png.flaticon.com/512/564/564793.png"}
+        {"cl": "I", "pts": "6%", "de": "Sin falla cardíaca. Pulmones limpios.", "img": "https://cdn-icons-png.flaticon.com/512/2491/2491280.png"},
+        {"cl": "II", "pts": "17%", "de": "Estertores basales, S3, congestión pulmonar.", "img": "https://cdn-icons-png.flaticon.com/512/2491/2491321.png"},
+        {"cl": "III", "pts": "38%", "de": "Edema agudo de pulmón franco.", "img": "https://cdn-icons-png.flaticon.com/512/2864/2864323.png"},
+        {"cl": "IV", "pts": "81%", "de": "Shock cardiogénico (hipotensión, oliguria).", "img": "https://cdn-icons-png.flaticon.com/512/564/564793.png"}
     ]
+
     for k in killips:
-        c1, c2 = st.columns([1, 3])
-        c1.image(k["img"], width=80)
-        if c2.button(f"Seleccionar Clase {k['cl']}: {k['de']}", key=k['cl']):
-            save(f"Killip {k['cl']}", k["pts"])
+        # Usamos una tarjeta visual para cada clase
+        with st.container():
+            c1, c2 = st.columns([1, 4])
+            with c1:
+                st.image(k["img"], width=70)
+            with c2:
+                # El botón ahora es más grande y fácil de presionar
+                if st.button(f"CLASE {k['cl']}\nMortalidad: {k['pts']}", key=f"kk_{k['cl']}", use_container_width=True):
+                    save(f"Killip {k['cl']}", k["pts"], f"Descripción: {k['de']}")
+            st.markdown(f"<p style='font-size: 0.9em; color: #9ca3af; margin-left: 85px;'>{k['de']}</p>", unsafe_allow_html=True)
+            st.write("---")
 
 # --- 5. PANTALLA: HEART SCORE (CORREGIDA)
 elif st.session_state.p == "heart":
