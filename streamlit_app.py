@@ -47,19 +47,7 @@ if st.session_state.p == "menu":
         st.markdown('<h1 style="color: #e63946; margin-left: -20px;">SCA-Scores Pro</h1>', unsafe_allow_html=True)
     
     st.write("---")
-
-  # --- 2. AVISO LEGAL (AL FINAL DE TODO) ---
-    st.markdown("""
-        <div style="margin-top: 50px; padding: 20px; background-color: #1a1c24; border-radius: 10px; border: 1px solid #3b82f6;">
-            <p style="color: #ffffff; font-size: 0.85em; margin: 0; line-height: 1.5;">
-                <span style="color: #facc15;"><b>⚠️ AVISO LEGAL:</b></span> Esta herramienta está diseñada exclusivamente 
-                como soporte para profesionales de la salud. Los resultados (HEART, GRACE, TIMI, Killip) son estimaciones 
-                probabilísticas basadas en literatura médica validada pero no deben utilizarse como única base para el 
-                diagnóstico o tratamiento. La responsabilidad final recae siempre en el médico tratante.
-            </p>
-        </div>
-    """, unsafe_allow_html=True)
-    
+   
     # Creamos la rejilla
     col1, col2 = st.columns(2)
 
@@ -89,12 +77,10 @@ if st.session_state.p == "menu":
         if st.button("ACCEDER KILLIP", key="btn_k", use_container_width=True):
             nav("kk")
 
-    # --- SECCIÓN DE REGISTROS (HISTORIAL) ---
+ # --- SECCIÓN DE REGISTROS (HISTORIAL) ---
+    # Usamos st.write() fuera de columnas para que ocupe todo el ancho
     st.write("---")
     st.subheader("📋 Pacientes Evaluados")
-
-    # Dentro del historial, debajo del título "Pacientes Evaluados"
-    st.caption("Los datos se almacenan localmente en la sesión actual. No se guardan en servidores externos.")
     
     if not st.session_state.h:
         st.info("No hay registros en este turno.")
@@ -105,11 +91,26 @@ if st.session_state.p == "menu":
                 if i['r']:
                     st.write(f"**Interpretación:** {i['r']}")
         
-        if st.button("🗑️ Borrar Todo", key="del_hist"):
+        if st.button("🗑️ Borrar Historial", key="del_hist_final"):
             st.session_state.h = []
             st.rerun()
 
-# --- AQUÍ CONTINÚA EL RESTO DE TUS PANTALLAS (elif st.session_state.p == "kk", etc) ---
+    # --- AVISO LEGAL (AL FINAL DE TODO) ---
+    # Este bloque debe estar al mismo nivel de sangría que el "st.write" de arriba
+    st.markdown("""
+        <div style="margin-top: 50px; padding: 15px; background-color: #1a1a1a; border-radius: 10px; border-left: 5px solid #e63946;">
+            <p style="color: #d1d5db; font-size: 0.8em; margin: 0; line-height: 1.4;">
+                <b style="color: #e63946;">⚠️ AVISO MÉDICO LEGAL:</b><br>
+                Esta aplicación es una herramienta de apoyo a la decisión clínica y no sustituye el juicio de un profesional médico. 
+                Los cálculos (HEART, GRACE, TIMI, Killip) se basan en protocolos estándar. La interpretación y uso de estos datos 
+                son responsabilidad exclusiva del usuario. En caso de emergencia, siga los protocolos de su institución.
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
+
+# --- REVISA QUE EL "ELIF" QUE SIGUE ESTÉ ALINEADO CON EL PRIMER "IF" ---
+elif st.session_state.p == "kk":
+    # ... resto del código ...
 
 # --- 4. PANTALLA: KILLIP VISUAL ---
 elif st.session_state.p == "kk":
