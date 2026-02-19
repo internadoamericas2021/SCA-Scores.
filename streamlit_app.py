@@ -112,68 +112,52 @@ elif st.session_state.p == "kk":
     st.button("⬅️ Volver", on_click=lambda: nav("menu"))
     # ... aquí sigue el resto de tu código de Killip ...
 
-# --- 4. PANTALLA: KILLIP & KIMBALL CON IMÁGENES ---
+# --- 4. PANTALLA: KILLIP & KIMBALL ---
 elif st.session_state.p == "kk":
-    st.button("⬅️ Volver al Menú", on_click=lambda: nav("menu"))
+    # Botón de retorno siempre visible arriba
+    st.button("⬅️ Volver al Menú", on_click=lambda: nav("menu"), key="back_kk")
     
-    st.markdown('<h2 style="color: #e63946;">Clasificación de Killip & Kimball</h2>', unsafe_allow_html=True)
-    st.info("Seleccione el estado clínico basado en la exploración física y hallazgos pulmonares:")
+    st.markdown('<h1 style="color: #e63946; text-align: center;">Escala de Killip & Kimball</h1>', unsafe_allow_html=True)
+    st.write("---")
 
-    # Definición de las clases con tus imágenes locales y la interpretación oficial
+    # --- NUEVO: GRÁFICO DE MORTALIDAD ---
+    # Creamos un gráfico de barras simple para impacto visual
+    import pandas as pd
+    
+    data_mortality = pd.DataFrame({
+        'Clase': ['I', 'II', 'III', 'IV'],
+        'Mortalidad (%)': [6, 17, 38, 81]
+    })
+    st.subheader("Riesgo de Mortalidad Intrahospitalaria")
+    st.bar_chart(data=data_mortality, x='Clase', y='Mortalidad (%)', color="#e63946")
+
+    st.info("Seleccione el estado clínico del paciente:")
+
+    # Diccionario de datos
     killips = [
-        {
-            "cl": "I", 
-            "pts": "6%", 
-            "img": "killip1.png", 
-            "de": "Sin signos de insuficiencia cardíaca.",
-            "interp": "Pulmones limpios, sin estertores ni tercer ruido (S3)."
-        },
-        {
-            "cl": "II", 
-            "pts": "17%", 
-            "img": "killip2.png", 
-            "de": "Insuficiencia cardíaca leve a moderada.",
-            "interp": "Estertores crepitantes en bases pulmonares, S3 o ingurgitación yugular."
-        },
-        {
-            "cl": "III", 
-            "pts": "38%", 
-            "img": "killip3.png", 
-            "de": "Insuficiencia cardíaca grave (Edema Agudo).",
-            "interp": "Edema agudo de pulmón con estertores en más del 50% de los campos pulmonares."
-        },
-        {
-            "cl": "IV", 
-            "pts": "81%", 
-            "img": "killip4.png", 
-            "de": "Shock Cardiogénico.",
-            "interp": "Hipotensión (PAS < 90mmHg), signos de hipoperfusión tisular, corazón dilatado y falla multiorgánica."
-        }
+        {"cl": "I", "pts": "6%", "img": "killip1.png", "interp": "Pulmones limpios, sin falla cardíaca."},
+        {"cl": "II", "pts": "17%", "img": "killip2.png", "interp": "Estertores en bases, S3 o ingurgitación yugular."},
+        {"cl": "III", "pts": "38%", "img": "killip3.png", "interp": "Edema agudo de pulmón (crepitantes generalizados)."},
+        {"cl": "IV", "pts": "81%", "img": "killip4.png", "interp": "Shock cardiogénico e hipotensión (Corazón dilatado)."}
     ]
 
-    # Renderizado de las tarjetas visuales
+    # Renderizado de Tarjetas
     for k in killips:
         with st.container():
-            col_img, col_txt = st.columns([1.2, 3])
-            
-            with col_img:
-                # Intentará cargar tu imagen local; si no existe, mostrará un marcador
+            c1, c2 = st.columns([1, 2.5])
+            with c1:
                 try:
                     st.image(k["img"], use_container_width=True)
                 except:
-                    st.warning(f"Falta {k['img']}")
+                    st.error(f"Archivo {k['img']} no encontrado")
             
-            with col_txt:
+            with c2:
                 st.markdown(f"### Clase {k['cl']}")
-                st.markdown(f"**Mortalidad estimada:** {k['pts']}")
-                st.write(k['interp'])
-                
-                if st.button(f"Seleccionar Clase {k['cl']}", key=f"btn_{k['cl']}", use_container_width=True):
-                    save(f"Killip & Kimball: Clase {k['cl']}", 
-                         f"Mortalidad {k['pts']}", 
-                         f"Hallazgos: {k['interp']}")
-            
-            st.write("---")
+                st.write(f"**Interpretación:** {k['interp']}")
+                if st.button(f"Registrar Clase {k['cl']} ({k['pts']})", key=f"sel_{k['cl']}", use_container_width=True):
+                    save(f"Killip {k['cl']}", k["pts"], k["interp"])
+                    st.success(f"Registrado: Clase {k['cl']}")
+        st.write("---")
 
 # --- 5. PANTALLA: HEART SCORE (CORREGIDA)
 elif st.session_state.p == "heart":
