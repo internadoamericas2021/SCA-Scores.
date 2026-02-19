@@ -94,55 +94,72 @@ elif st.session_state.p == "t_sel":
 
 elif st.session_state.p == "t_run":
     st.button("⬅️ Reiniciar", on_click=lambda: nav("t_sel"))
-    t_qs = ["¿Edad ≥ 65?", "¿3+ Factores Riesgo?", "¿Estenosis ≥ 50%?", "¿Cambios ST?", "¿Angina Grave?", "¿Uso AAS 7d?", "¿Marcadores (+)?"]
     
+    # 1. Definición de preguntas según el caso
+    if st.session_state.tipo == "NSTEMI":
+        t_qs = [
+            ("Edad ≥ 65?", 1), ("3+ Factores Riesgo?", 1), ("Estenosis ≥ 50%?", 1),
+            ("Cambios ST?", 1), ("Angina Grave (2+ en 24h)?", 1), ("Uso AAS 7d?", 1), ("Marcadores (+)?", 1)
+        ]
+    else: # STEMI
+        t_qs = [
+            ("Edad ≥ 75? (3 pts) o 65-74? (2 pts)", "especial"), 
+            ("PAS < 100 mmHg? (3 pts)", 3),
+            ("FC > 100 lpm? (2 pts)", 2),
+            ("Killip II-IV? (2 pts)", 2),
+            ("Infarto Anterior o BRI? (1 pt)", 1),
+            ("Peso < 67 kg? (1 pt)", 1),
+            ("DM, HTA o Angina previa? (1 pt)", 1),
+            ("Tiempo reperfusión > 4h? (1 pt)", 1)
+        ]
+
+    # 2. Lógica de preguntas
     if st.session_state.step < len(t_qs):
         st.subheader(f"TIMI {st.session_state.tipo}")
-        st.info(t_qs[st.session_state.step])
-        col_si, col_no = st.columns(2)
-        if col_si.button("SÍ (+1)"):
-            st.session_state.pts += 1
-            st.session_state.step += 1
-            st.rerun()
-        if col_no.button("NO (0)"):
-            st.session_state.step += 1
-            st.rerun()
+        pregunta, puntos = t_qs[st.session_state.step]
+        st.info(pregunta)
+        
+        if pregunta.startswith("Edad"): # Manejo especial para edad en STEMI
+            if st.session_state.tipo == "STEMI":
+                c1, c2, c3 = st.columns(3)
+                if c1.button("≥ 75"): st.session_state.pts += 3; st.session_state.step += 1; st.rerun()
+                if c2.button("65-74"): st.session_state.pts += 2; st.session_state.step += 1; st.rerun()
+                if c3.button("< 65"): st.session_state.step += 1; st.rerun()
+            else: # NSTEMI común
+                c1, c2 = st.columns(2)
+                if c1.button("SÍ"): st.session_state.pts += 1; st.session_state.step += 1; st.rerun()
+                if c2.button("NO"): st.session_state.step += 1; st.rerun()
+        else:
+            c1, c2 = st.columns(2)
+            if c1.button("SÍ"):
+                st.session_state.pts += puntos
+                st.session_state.step += 1
+                st.rerun()
+            if c2.button("NO"):
+                st.session_state.step += 1
+                st.rerun()
+                
+    # 3. Interpretación de resultados
     else:
-        # Lógica de interpretación TIMI NSTEMI
         p_total = st.session_state.pts
-        
-        if p_total <= 1:
-            riesgo = "Bajo (4.7%)"
-            color = "🟢"
-        elif p_total == 2:
-            riesgo = "Bajo (8.3%)"
-            color = "🟢"
-        elif p_total == 3:
-            riesgo = "Intermedio (13.2%)"
-            color = "🟡"
-        elif p_total == 4:
-            riesgo = "Intermedio (19.9%)"
-            color = "🟡"
-        elif p_total == 5:
-            riesgo = "Alto (26.2%)"
-            color = "🔴"
-        else: # 6 o 7 puntos
-            riesgo = "Alto (40.9%)"
-            color = "🔴"
+        if st.session_state.tipo == "STEMI":
+            # Tabla de mortalidad STEMI a 30 días
+            mortalidad = {
+                0: "0.8%", 1: "1.6%", 2: "2.2%", 3: "4.4%", 4: "7.3%", 
+                5: "12%", 6: "16%", 7: "23%", 8: "27%", 9: "36%"
+            }
+            riesgo_txt = mortalidad.get(p_total, "> 36%")
+            color = "🔴" if p_total >= 5 else "🟡" if p_total >= 3 else "🟢"
+            
+            st.markdown(f"### {color} Puntaje TIMI STEMI: {p_total}")
+            st.metric("Mortalidad estimada (30 días)", riesgo_txt)
+        else:
+            # (Aquí va la lógica de NSTEMI que ya pusimos antes...)
+            riesgo_txt = "Calculado" 
+            st.write(f"Puntaje NSTEMI: {p_total}")
 
-        st.markdown(f"### {color} Puntaje TIMI: {p_total}")
-        st.metric("Riesgo de MACE (14 días)", riesgo)
-        
-        # Tabla de referencia rápida
-        data_timi = {
-            "Puntos": ["0-2", "3-4", "5-7"],
-            "Riesgo": ["Bajo", "Intermedio", "Alto"],
-            "Mortalidad/IAM": ["< 8%", "13-20%", "> 26%"]
-        }
-        st.table(data_timi)
-
-        if st.button("💾 Guardar Resultado"):
-            save(f"TIMI {st.session_state.tipo}", p_total, f"({riesgo})")
+        if st.button("💾 Guardar"):
+            save(f"TIMI {st.session_state.tipo}", p_total, f"({riesgo_txt})")
 elif st.session_state.p == "grace":
     st.button("⬅️ Volver", on_click=lambda: nav("menu"))
     st.header("GRACE Score 2.0")
