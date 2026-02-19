@@ -64,13 +64,13 @@ if st.session_state.p == "menu":
     c1, c2 = st.columns(2)
     with c1:
         st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
-        st.image("image_7e5193.png", use_container_width=True) # HEART
+        st.image("heart.png", use_container_width=True) # HEART
         if st.button("H", key="btn_h"): nav("heart")
         st.markdown('</div>', unsafe_allow_html=True)
 
     with c2:
         st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
-        st.image("image_7e50c3.png", use_container_width=True) # GRACE
+        st.image("grace.png", use_container_width=True) # GRACE
         if st.button("G", key="btn_g"): nav("grace")
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -78,13 +78,13 @@ if st.session_state.p == "menu":
     c3, c4 = st.columns(2)
     with c3:
         st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
-        st.image("image_7e54a0.jpg", use_container_width=True) # TIMI
+        st.image("timi.jpg", use_container_width=True) # TIMI
         if st.button("T", key="btn_t"): nav("t_sel")
         st.markdown('</div>', unsafe_allow_html=True)
 
     with c4:
         st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
-        st.image("image_7e5483.png", use_container_width=True) # KILLIP
+        st.image("killip.png", use_container_width=True) # KILLIP
         if st.button("K", key="btn_k"): nav("kk")
         st.markdown('</div>', unsafe_allow_html=True)
 
