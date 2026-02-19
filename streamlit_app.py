@@ -134,9 +134,8 @@ elif st.session_state.p == "grace":
         submit = st.form_submit_button("Calcular Riesgo GRACE")
 
     if submit:
-        # Lógica de puntos simplificada basada en el nomograma GRACE
+        # (Lógica de puntos que ya teníamos...)
         pts = 0
-        # Edad
         if edad < 40: pts += 0
         elif edad < 50: pts += 18
         elif edad < 60: pts += 36
@@ -144,14 +143,12 @@ elif st.session_state.p == "grace":
         elif edad < 80: pts += 73
         else: pts += 91
         
-        # FC
         if fc < 70: pts += 0
         elif fc < 100: pts += 7
         elif fc < 150: pts += 24
         elif fc < 200: pts += 46
         else: pts += 64
 
-        # PAS
         if pas < 80: pts += 63
         elif pas < 100: pts += 53
         elif pas < 120: pts += 43
@@ -159,7 +156,6 @@ elif st.session_state.p == "grace":
         elif pas < 160: pts += 24
         else: pts += 0
 
-        # Creatinina
         if creat < 0.4: pts += 1
         elif creat < 0.8: pts += 4
         elif creat < 1.2: pts += 7
@@ -167,7 +163,6 @@ elif st.session_state.p == "grace":
         elif creat < 2.0: pts += 13
         else: pts += 21
 
-        # Resto de variables
         if paro: pts += 43
         if st_seg: pts += 30
         if enzimas: pts += 15
@@ -175,11 +170,33 @@ elif st.session_state.p == "grace":
         dict_kk = {"I": 0, "II": 21, "III": 43, "IV": 64}
         pts += dict_kk[kk]
 
-        # Interpretación
-        mortalidad = "Baja (<1%)" if pts <= 108 else "Intermedia (1-3%)" if pts <= 140 else "Alta (>3%)"
+        # --- NUEVA SECCIÓN DE RESULTADOS Y TABLA ---
+        st.subheader(f"Resultado: {pts} puntos")
         
-        st.success(f"Puntaje Total: {pts} puntos")
-        st.metric("Mortalidad Intrahospitalaria", mortalidad)
+        if pts > 140:
+            riesgo_cat = "Alto"
+            color = "🔴"
+            conducta = "Estrategia invasiva temprana (< 24h)"
+        elif pts > 108:
+            riesgo_cat = "Intermedio"
+            color = "🟡"
+            conducta = "Estrategia invasiva en la hospitalización"
+        else:
+            riesgo_cat = "Bajo"
+            color = "🟢"
+            conducta = "Manejo conservador / Evaluación no invasiva"
+
+        st.markdown(f"### {color} Riesgo {riesgo_cat}")
         
-        if st.button("Guardar en Pacientes Evaluados"):
-            save("GRACE", pts, f"({mortalidad})")
+        # Tabla de Recomendación Clínica
+        data = {
+            "Categoría de Riesgo": ["Muy Alto", "Alto (GRACE >140)", "Bajo/Intermedio"],
+            "Tiempo de Reperfusión": ["Inmediata (<2h)", "Temprana (<24h)", "Selectiva"],
+            "Criterios": ["Inestabilidad HD/Eléctrica", "Cambios dinámicos ST", "Estable sin cambios"]
+        }
+        st.table(data)
+        
+        st.info(f"**Conducta sugerida:** {conducta}")
+
+        if st.button("💾 Guardar en Historial"):
+            save("GRACE", pts, f"({riesgo_cat} - {conducta})")
