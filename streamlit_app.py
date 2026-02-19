@@ -31,30 +31,28 @@ def save(escala, puntos, riesgo=""):
 
 # --- 3. PANTALLA: MENÚ PRINCIPAL ---
 if st.session_state.p == "menu":
-    # Estilo para hacer los botones invisibles y posicionarlos sobre la imagen
+    # --- Estilo para botones invisibles sobre imágenes ---
     st.markdown("""
         <style>
-        .img-button-container {
+        .overlay-container {
             position: relative;
-            width: 100%;
-            max-width: 250px;
-            margin: auto;
+            cursor: pointer;
+            margin-bottom: 20px;
         }
-        .stButton>button {
+        /* Esto hace que el botón de Streamlit sea invisible pero cubra la imagen */
+        .stButton button {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: transparent !important;
+            height: 100% !important;
+            background: rgba(0,0,0,0) !important;
             color: transparent !important;
             border: none !important;
-            z-index: 10;
+            z-index: 2;
         }
-        /* Efecto de pulso al pasar el mouse/dedo */
-        .img-button-container:active {
-            transform: scale(0.95);
-            transition: 0.2s;
+        .stButton button:hover {
+            background: rgba(255,255,255,0.1) !important; /* Un leve brillo al tocar */
         }
         </style>
     """, unsafe_allow_html=True)
@@ -62,39 +60,51 @@ if st.session_state.p == "menu":
     st.markdown('<h1 style="text-align: center; color: #e63946;">🫀 SCA-Scores Pro</h1>', unsafe_allow_html=True)
     st.write("---")
 
-    # Rejilla de botones
-    col1, col2 = st.columns(2)
-
-    with col1:
-        # Botón HEART
-        st.markdown('<div class="img-button-container">', unsafe_allow_html=True)
-        st.image("heart.png", use_container_width=True)
-        if st.button("H", key="h_btn"): nav("heart")
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.write("")
-
-        # Botón TIMI
-        st.markdown('<div class="img-button-container">', unsafe_allow_html=True)
-        st.image("timi.png", use_container_width=True)
-        if st.button("T", key="t_btn"): nav("t_sel")
+    # Fila 1: HEART y GRACE
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
+        st.image("image_7e5193.png", use_container_width=True) # HEART
+        if st.button("H", key="btn_h"): nav("heart")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with col2:
-        # Botón GRACE
-        st.markdown('<div class="img-button-container">', unsafe_allow_html=True)
-        st.image("grace.png", use_container_width=True)
-        if st.button("G", key="g_btn"): nav("grace")
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.write("")
-
-        # Botón KILLIP
-        st.markdown('<div class="img-button-container">', unsafe_allow_html=True)
-        st.image("killip.png", use_container_width=True)
-        if st.button("K", key="k_btn"): nav("kk")
+    with c2:
+        st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
+        st.image("image_7e50c3.png", use_container_width=True) # GRACE
+        if st.button("G", key="btn_g"): nav("grace")
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # Fila 2: TIMI y KILLIP
+    c3, c4 = st.columns(2)
+    with c3:
+        st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
+        st.image("image_7e54a0.jpg", use_container_width=True) # TIMI
+        if st.button("T", key="btn_t"): nav("t_sel")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with c4:
+        st.markdown('<div class="overlay-container">', unsafe_allow_html=True)
+        st.image("image_7e5483.png", use_container_width=True) # KILLIP
+        if st.button("K", key="btn_k"): nav("kk")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # --- SECCIÓN DE REGISTROS (HISTORIAL) ---
     st.write("---")
-    # (Aquí sigue el código del historial que ya tenías)
+    st.subheader("📋 Pacientes Evaluados")
+    
+    if not st.session_state.h:
+        st.info("No hay registros en este turno.")
+    else:
+        for idx, i in enumerate(reversed(st.session_state.h)):
+            # Usamos un expander para que se vea limpio
+            with st.expander(f"🕒 {i['t']} - {i['e']}"):
+                st.write(f"**Resultado:** {i['p']} puntos")
+                if i['r']:
+                    st.write(f"**Interpretación:** {i['r']}")
+        
+        if st.button("🗑️ Borrar Todo el Historial"):
+            st.session_state.h = []
+            st.rerun()
 
 # --- 4. PANTALLA: KILLIP VISUAL ---
 elif st.session_state.p == "kk":
