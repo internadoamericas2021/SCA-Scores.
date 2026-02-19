@@ -40,9 +40,7 @@ if st.session_state.p == "menu":
         # Buscamos el archivo que renombraste a logo.png
         if os.path.exists("logo.png"):
             st.image("logo.png", width=70)
-        else:
-            st.write("🟦") # Cuadro azul de respaldo
-
+       
     with col_tit:
         # Título alineado con el logo
         st.markdown('<h1 style="color: #e63946; margin-top: 5px; font-size: 2.2em;">SCA-Scores Pro</h1>', unsafe_allow_html=True)
