@@ -111,9 +111,8 @@ if st.session_state.p == "menu":
         </div>
     """, unsafe_allow_html=True)
 
-# --- 4. PANTALLA: KILLIP & KIMBALL ---
+# --- 4. PANTALLA: KILLIP & KIMBALL (CORREGIDO) ---
 elif st.session_state.p == "kk":
-    # El nav("menu") aquí ya activa el reinicio automático
     st.button("⬅️ Volver al Menú", on_click=lambda: nav("menu"), key="back_kk")
     
     st.markdown('<h2 style="color: #e63946; text-align: center;">Clasificación de Killip & Kimball</h2>', unsafe_allow_html=True)
@@ -138,17 +137,13 @@ elif st.session_state.p == "kk":
                 st.markdown(f"### Clase {k['cl']}")
                 st.write(f"**Mortalidad:** {k['pts']}")
                 st.write(f"**Clínica:** {k['interp']}")
-                # Dentro del bucle de Killip...
-                if st.button(f"Seleccionar Clase {k['cl']}", key=f"sel_kk_{k['cl']}", use_container_width=True):
+                
+                # SOLO UN BOTÓN CON UNA KEY ÚNICA
+                if st.button(f"Seleccionar Clase {k['cl']}", key=f"btn_kk_{k['cl']}", use_container_width=True):
                     save(f"Killip {k['cl']}", k['pts'], k['interp'])
-                    st.rerun() # Solo aquí, fuera de un callback, es seguro usarlo para volver al menú rápido
-                # Aquí usamos el nav("menu") dentro de save()
-                if st.button(f"Seleccionar Clase {k['cl']}", key=f"sel_kk_{k['cl']}", use_container_width=True):
-                    save(f"Killip & Kimball: Clase {k['cl']}", 
-                         f"{k['pts']} mortalidad", 
-                         f"Hallazgos: {k['interp']}")
+                    st.rerun() 
         st.write("---")
-
+        
 # --- 5. PANTALLA: HEART SCORE (CORREGIDA)
 elif st.session_state.p == "heart":
     st.button("⬅️ Cancelar", on_click=lambda: nav("menu"))
