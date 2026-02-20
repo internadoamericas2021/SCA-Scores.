@@ -3,13 +3,20 @@ import datetime
 import os
 
 # --- 1. CONFIGURACIÓN Y ESTILO ---
-import streamlit as st
-
-# Esta DEBE ser la primera instrucción de Streamlit en tu código
+# Esta DEBE ser la primera instrucción de Streamlit
 st.set_page_config(
     page_title="SCA-Scores Pro",
-    page_icon="icono.png", # Streamlit buscará este archivo en tu carpeta raíz
+    page_icon="icono.png", 
     layout="centered"
+)
+
+# Inyectar HTML para compatibilidad con móviles (Android/iOS)
+st.markdown(
+    """
+    <link rel="icon" href="icono.png">
+    <link rel="apple-touch-icon" href="icono.png">
+    """,
+    unsafe_allow_html=True
 )
 
 st.markdown("""
