@@ -3,7 +3,7 @@ import datetime
 import os
 
 # --- 1. CONFIGURACIÓN Y ESTILO ---
-st.set_page_config(page_title="SCA-Scores Pro", page_icon="❤️", layout="centered")
+st.set_page_config(page_title="SCA-Scores Pro",page_icon="icono.png", # Aquí es donde definimos el icono 🖼️ layout="centered")
 
 st.markdown("""
     <style>
